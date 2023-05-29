@@ -45,18 +45,19 @@ If a history file is specified via the CLI, you should log the used spells as we
 
 ## Checklist
 
-- [ ] Use appropriate data structures
-- [ ] Store data correctly in the appropriate members of the structures
-- [ ] Use pointers of the correct type
-- [ ] Use pointers correctly for function parameters (including call-by-reference)
-- [ ] Allocate memory correctly and efficiently
-- [ ] Avoid memory leaks and properly free allocated memory
+- [x] Use appropriate data structures
+- [x] Store data correctly in the appropriate members of the structures
+- [x] Use pointers of the correct type
+- [x] Use pointers correctly for function parameters (including call-by-reference)
+- [x] Allocate memory correctly and efficiently
+- [x] Avoid memory leaks and properly free allocated memory
 - [ ] Correctly use the arguments to main (input and output files via flags)
-- [ ] Provide the correct and efficient structure for a circular linked list
+- [x] Provide the correct and efficient structure for a circular linked list
 - [ ] Implement functions to push, pop, and cycle the circular linked list
-- [ ] Store choices made in a history file using file handling
+- [x] Store choices made in a history file using file handling
 - [ ] Parse the JSON data from the file into the provided data structure
 - [ ] Use the loaded file to create a playable part that tracks spell slots
 - [ ] Ensure that the program works without crashing
 - [ ] Make useful weekly commits on GitHub
 
+this project is due in a couple hours and I'm practically half way done, love my life. (for legal reasons that was a joke)
