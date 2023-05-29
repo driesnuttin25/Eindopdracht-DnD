@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define SPELL_AMOUNT 4
+#define HISTORY_FILE "history.txt"
 
 // Define the struct to hold the parsed data
 typedef struct {
@@ -33,11 +34,11 @@ void addNode(Node **head, SpellInfo spell) {
       current = current->next;
     }
     current->next = newNode;
-    newNode->next = *head; // Connect the last node to the first node
+    newNode->next = *head; // making a circle instead of a straight line
   }
 }
 
-// Function to parse JSON and extract the required values
+// Function to parse JSON and extract the required values, just this took me way too long and i dont like it. next time im using jansson or c-json.
 void parseJSON(char *jsonString, Node **head) {
   SpellInfo spell;
   bool foundIndex = false;
@@ -68,18 +69,33 @@ void parseJSON(char *jsonString, Node **head) {
     token = strtok(NULL, ",{}\":");
   }
 
-  free(jsonCopy); // Free the copied string
+  free(jsonCopy); // gotta save that memory
 }
 
-// Function to print a single card from the linked list
+// this actually displays the values in the console
 void displayCard(Node *current) {
   printf("Index: %s\n", current->spell.index);
   printf("Name: %s\n", current->spell.name);
   printf("URL: %s\n\n", current->spell.url);
 }
 
-// Function to print the linked list
-// Function to print the linked list
+// writing all my actions in a file because extra points
+void writeHistory(const char *action, Node *current) {
+  FILE *file = fopen(HISTORY_FILE, "a");
+  if (file == NULL) {
+    printf("Error opening history file.\n");
+    return;
+  }
+
+  fprintf(file, "Action: %s\n", action);
+  fprintf(file, "Index: %s\n", current->spell.index);
+  fprintf(file, "Name: %s\n", current->spell.name);
+  fprintf(file, "URL: %s\n\n", current->spell.url);
+
+  fclose(file);
+}
+
+// only use if your teachers ask you to, but for reasons only my tired brain can understand I'm going to leave it out
 void printList(Node *head) {
   if (head == NULL) {
     printf("The list is empty.\n");
@@ -93,8 +109,7 @@ void printList(Node *head) {
   } while (current != head);
 }
 
-
-// Function to remove the current card from the linked list
+// Function to remove the current card from the linked list, could have written this in the main but wanted to be fancy
 void removeCard(Node **head, Node *current) {
   if (*head == NULL) {
     printf("No cards left in the deck.\n");
@@ -118,10 +133,7 @@ void removeCard(Node **head, Node *current) {
 }
 
 int main() {
-  // Create a linked list to store the parsed data
   Node *head = NULL;
-
-  // JSON file names
   char jsonFiles[SPELL_AMOUNT][100] = {"sacred-flame.json", "acid-splash.json",
                                        "aid.json", "calm-emotions.json"};
 
@@ -138,59 +150,58 @@ int main() {
     long fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    // Allocate memory for the JSON string
+    // Allocate memory for the JSON string cause otherwise i get lovely segmentation faults
     char *jsonString = (char *)malloc(fileSize + 1);
 
     // Read the file content into the JSON string
     fread(jsonString, 1, fileSize, file);
-    jsonString[fileSize] = '\0'; // Null-terminate the string
+    jsonString[fileSize] = '\0'; // Gotta end that string on a null terminator
 
-    // Close the file
     fclose(file);
 
-    // Parse the JSON and populate the linked list
+    // Parse that bad boy
     parseJSON(jsonString, &head);
 
-    // Free the allocated memory
+    // Look at me using memory correctly
     free(jsonString);
   }
 
-  // Print the linked list
   //printList(head);
 
   Node *current = head;
   char choice[10];
 
   while (1) {
-    printf("next, previous, use \n");
+    printf("next, previous, use\n");
     scanf("%s", choice);
 
     if (strcmp(choice, "next") == 0) {
       system("clear");
-  current = current->next;
-  displayCard(current);
-} else if (strcmp(choice, "previous") == 0) {
-  system("clear");
-  Node *temp = head;
+      current = current->next;
+      displayCard(current);
+      writeHistory("next", current);
+    } else if (strcmp(choice, "previous") == 0) {
+      system("clear");
+      Node *temp = head;
+      // only way i got it work. isn't modular but its 22 at night and i could find out how.
+      while (temp->next != current) {
+        temp = temp->next;
+      }
 
-  // Find the previous node in the circular linked list
-  while (temp->next != current) {
-    temp = temp->next;
-  }
-
-  current = temp;
-  displayCard(current);
-}
-
-     else if (strcmp(choice, "use") == 0) {
-       system("clear");
+      current = temp;
+      displayCard(current);
+      writeHistory("previous", current);
+    } else if (strcmp(choice, "use") == 0) {
+      system("clear");
       Node *temp = current->next;
+      writeHistory("use", current);
+      printf("You used\n");
+      displayCard(current);
       removeCard(&head, current);
       current = temp;
-      printf("Card removed from the deck.\n");
     } else {
-       system("clear");
-      printf("Invalid choice. Please try again.\n");
+      system("clear");
+      printf("I have no clue what you're trying to type, man.\n");
     }
   }
 
